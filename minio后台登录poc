@@ -1,3 +1,6 @@
+minio后台登录poc：
+读取文件里的url地址，进行提取后放入列表，遍历url进行url替换为漏洞uri，进行requests请求，将响应包转换为json格式，检察json数据中是否出现漏洞字段，存在就将其账号密码进行输出
+minio后台登录poc
 import requests
 import sys 
 

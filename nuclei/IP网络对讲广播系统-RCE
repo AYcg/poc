@@ -1,7 +1,7 @@
-id: template-id
+id: IP-intercom-RCE
 
 info:
-  name: Template Name
+  name: IP-intercom-RCE
   author: changge
   severity: info
   description: description

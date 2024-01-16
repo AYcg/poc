@@ -1,0 +1,24 @@
+id: RG_UAC_leakPass
+info:
+  name: 锐捷RG-UAC统一上网行为管理与审计系统管理员密码泄露
+  author: changge
+  severity: high
+  description: 锐捷RG-UAC统一上网行为管理与审计系统管理员密码泄露,查看源码搜索super_admin看到密码值进行md5解密就直接登录。
+  metadata:
+    max-request: 1
+    fofa-query: title="RG-UAC登录页面" && body="admin"
+    verified: true
+  tags: RG,UA
+
+requests:
+  - raw:
+      - |-
+        GET / HTTP/1.1
+        Host: {{Hostname}}
+
+    req-condition: true
+    matchers:
+      - type: dsl
+        condition: and
+        dsl:
+          - 'contains((body), "super_admin") && status_code == 200'

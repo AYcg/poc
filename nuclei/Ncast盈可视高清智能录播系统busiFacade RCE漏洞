@@ -3,7 +3,7 @@ id: Ncat-RCE-CVE-2024-0305
 
 info:
   name: Ncast盈可视高清智能录播系统busiFacade RCE漏洞
-  author: fgz
+  author: changge
   severity: critical
   description: Ncast盈可视高清智能录播系统是一套新进的音视频录制和播放系统。该系统/classes/common/busiFacade.php接口存在RCE漏洞。
   metadata:

